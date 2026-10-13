@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Мякиш: пекарня и кофе</title>
+<meta name="description" content="Демо-сайт пекарни: расписание выпечки и предзаказ с собой без очереди.">
+<meta name="theme-color" content="#f2efe9">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<style>
+  /* Светлая тема — часть бренда пекарни, сайт всегда светлый */
+  :root{
+    color-scheme:light;
+    --bg:#f2efe9;
+    --surface:#ffffff;
+    --ink:#1f2230;
+    --muted:#666a76;
+    --line:#e0dcd3;
+    --soft:#e8e4dc;
+    --accent:#2b45c8;
+    --accent-hover:#2238a8;
+    --accent-soft:#e3e7fa;
+    --r:14px;
+    --ease:cubic-bezier(.16,1,.3,1);
+    --font:"Commissioner",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+  img{display:block;max-width:100%}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+  @media(min-width:768px){.wrap{padding:0 36px}}
+
+  .demo-bar{background:var(--ink);color:#c9cbd3;font-size:12px;text-align:center;padding:6px 16px}
+
+  header{position:sticky;top:0;z-index:30;background:rgba(242,239,233,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:16px;height:64px}
+  .logo{font-weight:700;font-size:26px;letter-spacing:-.04em;text-decoration:none}
+  .logo span{color:var(--accent)}
+  .nav-mid{display:none;gap:28px;font-size:15px;color:var(--muted)}
+  .nav-mid a{text-decoration:none}
+  .nav-mid a:hover{color:var(--ink)}
+  @media(min-width:900px){.nav-mid{display:flex}}
+  .cart-btn{position:relative;display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 16px;border-radius:99px;background:var(--surface);border:1px solid var(--line);font-weight:500;font-size:15px;text-decoration:none}
+  .cart-btn i{font-size:19px}
+  .cart-btn .n{min-width:22px;height:22px;border-radius:99px;background:var(--accent);color:#fff;font-size:12px;display:none;place-items:center;padding:0 6px}
+  .cart-btn .n.on{display:grid}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:54px;padding:0 28px;border-radius:99px;background:var(--accent);color:#fff;font-weight:500;font-size:16px;text-decoration:none;transition:background .2s,transform .12s}
+  .btn:hover{background:var(--accent-hover)}
+  .btn:active{transform:scale(.98)}
+  .btn.soft{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+  .btn.soft:hover{border-color:var(--ink)}
+  .btn[disabled]{background:var(--soft);color:var(--muted);cursor:not-allowed}
+
+  /* первый экран */
+  .hero{display:grid;gap:28px;padding:28px 0 56px}
+  .hero-media{border-radius:var(--r);overflow:hidden;aspect-ratio:5/4;background:var(--soft);position:relative}
+  .hero-media img{width:100%;height:100%;object-fit:cover}
+  h1{font-weight:600;font-size:clamp(38px,6.4vw,74px);line-height:1.02;letter-spacing:-.045em;max-width:12ch}
+  h1 em{font-style:normal;color:var(--accent)}
+  .lead{margin-top:18px;color:var(--muted);font-size:clamp(17px,1.7vw,19px);max-width:40ch}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+  @media(max-width:520px){.hero-cta .btn{flex:1 1 100%}}
+  @media(min-width:900px){
+    .hero{grid-template-columns:1fr 1.05fr;align-items:center;gap:56px;padding:48px 0 88px;min-height:calc(100dvh - 100px)}
+    .hero-media{aspect-ratio:auto;height:100%;min-height:520px}
+  }
+  .hero-text>*{opacity:0;transform:translateY(16px);animation:up .9s var(--ease) forwards}
+  .hero-text>*:nth-child(2){animation-delay:.1s}
+  .hero-text>*:nth-child(3){animation-delay:.2s}
+  @keyframes up{to{opacity:1;transform:none}}
+
+  /* из печи */
+  .oven{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px;display:grid;gap:18px}
+  @media(min-width:900px){.oven{grid-template-columns:auto 1fr;align-items:center;gap:40px;padding:26px 32px}}
+  .oven-now b{display:block;font-size:22px;font-weight:600;letter-spacing:-.02em}
+  .oven-now span{color:var(--muted);font-size:15px}
+  .batches{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  @media(min-width:700px){.batches{grid-template-columns:repeat(4,1fr)}}
+  .batch{padding:12px 14px;border-radius:10px;background:var(--bg);font-size:14px;color:var(--muted);line-height:1.35}
+  .batch time{display:block;font-weight:600;font-size:18px;color:var(--ink);font-variant-numeric:tabular-nums}
+  .batch.done{opacity:.55}
+  .batch.next{background:var(--accent-soft);color:var(--accent)}
+  .batch.next time{color:var(--accent)}
+
+  section{padding:80px 0}
+  @media(min-width:900px){section{padding:120px 0}}
+  h2{font-weight:600;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.04em;max-width:16ch}
+  .sub{color:var(--muted);margin-top:14px;max-width:50ch}
+
+  /* меню */
+  .tabs{display:flex;gap:8px;margin:32px 0 24px;overflow-x:auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:none;height:44px;padding:0 20px;border-radius:99px;background:var(--surface);border:1px solid var(--line);font-weight:500;font-size:15px;transition:background .2s,color .2s}
+  .tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .menu{display:grid;gap:12px}
+  @media(min-width:700px){.menu{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:1024px){.menu{grid-template-columns:repeat(3,1fr)}}
+  .item{display:flex;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px;animation:up .5s var(--ease) both}
+  .item .pic{flex:none;width:84px;height:84px;border-radius:10px;overflow:hidden;background:var(--soft);display:grid;place-items:center;color:var(--muted);font-size:26px}
+  .item .pic img{width:100%;height:100%;object-fit:cover}
+  .item .t{flex:1;min-width:0}
+  .item .t b{display:block;font-weight:500;font-size:16px;line-height:1.3}
+  .item .t span{color:var(--muted);font-size:14px}
+  .item .t .p{display:block;color:var(--ink);font-weight:600;font-size:16px;margin-top:4px}
+  .add{flex:none;width:44px;height:44px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:20px;transition:background .2s,transform .15s}
+  .add:hover{background:var(--accent);color:#fff}
+  .add:active{transform:scale(.9)}
+  .qty{flex:none;display:flex;align-items:center;gap:4px;background:var(--accent);color:#fff;border-radius:99px;padding:3px}
+  .qty button{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:16px}
+  .qty button:hover{background:rgba(255,255,255,.16)}
+  .qty span{min-width:18px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
+
+  /* заказ */
+  .order{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .order-grid{display:grid;gap:36px;margin-top:40px}
+  .order-grid>div{min-width:0}
+  @media(min-width:900px){.order-grid{grid-template-columns:1fr 1fr;gap:64px}}
+  .lbl{display:block;font-weight:500;font-size:15px;margin:0 0 10px}
+  .lbl.gap{margin-top:26px}
+  .lines{display:grid;gap:0;border-top:1px solid var(--line)}
+  .line{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:16px}
+  .line span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap}
+  .total{display:flex;justify-content:space-between;padding:16px 0 0;font-weight:600;font-size:20px}
+  .empty{color:var(--muted);padding:18px;border:1.5px dashed var(--line);border-radius:var(--r);text-align:center}
+  .empty a{color:var(--accent);font-weight:500;text-decoration:none}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{min-height:46px;padding:6px 16px;border-radius:99px;background:var(--bg);border:1px solid var(--line);font-weight:500;font-size:15px;line-height:1.2;transition:background .2s}
+  .chip small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+  .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .chip[aria-pressed="true"] small{color:#c9cbd3}
+  .field{margin-bottom:16px}
+  .field input{width:100%;height:52px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:0 16px;font:inherit;outline:none;transition:border-color .2s}
+  .field input:focus{border-color:var(--accent)}
+  .field input::placeholder{color:#9a9da7}
+  .err{display:none;color:#b3261e;font-size:14px;margin-top:6px}
+  .order-grid .btn{width:100%;margin-top:6px}
+  .fine{font-size:14px;color:var(--muted);margin-top:10px}
+  .success{display:none;text-align:center;padding:24px 0}
+  .success.show{display:block;animation:up .6s var(--ease)}
+  .success .num{display:inline-block;font-size:clamp(56px,10vw,96px);font-weight:600;letter-spacing:-.05em;color:var(--accent);line-height:1}
+  .success h3{font-weight:600;font-size:26px;letter-spacing:-.02em;margin:14px 0 8px}
+  .success p{color:var(--muted);max-width:44ch;margin:0 auto}
+
+  /* о кофе */
+  .coffee{display:grid;gap:32px}
+  @media(min-width:900px){.coffee{grid-template-columns:.9fr 1.1fr;gap:72px;align-items:center}}
+  .coffee-photo{border-radius:var(--r);overflow:hidden;aspect-ratio:4/5}
+  .coffee-photo img{width:100%;height:100%;object-fit:cover}
+  .coffee-list{margin-top:28px;display:grid;gap:18px}
+  .coffee-list div{display:flex;gap:14px}
+  .coffee-list i{flex:none;width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:20px}
+  .coffee-list p{color:var(--muted);font-size:16px}
+  .coffee-list b{display:block;color:var(--ink);font-weight:500}
+
+  /* отзыв */
+  .review{display:grid;gap:28px;align-items:center}
+  @media(min-width:900px){.review{grid-template-columns:1.3fr .7fr;gap:64px}}
+  .review blockquote p{font-size:clamp(24px,3.2vw,38px);line-height:1.25;letter-spacing:-.025em;font-weight:500}
+  .review footer{margin-top:16px;color:var(--muted);font-size:15px}
+  .review-photo{border-radius:var(--r);overflow:hidden;aspect-ratio:1/1}
+  .review-photo img{width:100%;height:100%;object-fit:cover}
+  .rating{display:inline-flex;align-items:center;gap:8px;margin-top:24px;font-size:15px;color:var(--muted)}
+  .rating b{color:var(--ink);font-size:18px}
+  .rating i{color:#e5a100}
+
+  /* контакты */
+  .contacts{display:grid;gap:24px;margin-top:36px}
+  @media(min-width:900px){.contacts{grid-template-columns:.8fr 1.2fr;gap:48px}}
+  .rows{display:grid;gap:20px;align-content:start}
+  .rows div{display:flex;gap:12px}
+  .rows i{font-size:22px;color:var(--accent);flex:none;margin-top:2px}
+  .rows small{display:block;color:var(--muted);font-size:14px}
+  .map{border:0;width:100%;height:320px;border-radius:var(--r);background:var(--soft)}
+
+  .foot{padding:28px 0 110px;color:var(--muted);font-size:13px;border-top:1px solid var(--line)}
+  @media(min-width:900px){.foot{padding-bottom:36px}}
+
+  /* плавающая корзина на телефоне */
+  .cart-bar{position:fixed;left:12px;right:12px;bottom:12px;z-index:30;padding-bottom:env(safe-area-inset-bottom);transform:translateY(130%);transition:transform .45s var(--ease)}
+  .cart-bar.on{transform:none}
+  .cart-bar a{display:flex;align-items:center;justify-content:space-between;height:58px;padding:0 22px;border-radius:99px;background:var(--accent);color:#fff;text-decoration:none;font-weight:500;box-shadow:0 12px 30px rgba(43,69,200,.35)}
+  .cart-bar.bump a{animation:bump .35s var(--ease)}
+  @keyframes bump{40%{transform:scale(1.04)}}
+  @media(min-width:900px){.cart-bar{display:none}}
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    html{scroll-behavior:auto}
+    .hero-text>*{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-bar">Демо-сайт: пекарня, цены и отзывы вымышленные. Фото: Unsplash.</div>
+
+<header>
+  <div class="wrap nav">
+    <a href="#top" class="logo">мякиш<span>.</span></a>
+    <nav class="nav-mid">
+      <a href="#menu">Меню</a>
+      <a href="#coffee">Кофе</a>
+      <a href="#contacts">Как найти</a>
+    </nav>
+    <a href="#order" class="cart-btn"><i class="ph ph-bag"></i>Заказ<span class="n" id="cartN">0</span></a>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap">
+    <div class="hero">
+      <div class="hero-text">
+        <h1>Круассаны из печи <em>каждые три часа</em></h1>
+        <p class="lead">Закажите по дороге и заберите на кассе без очереди. Кофе сварим к вашему приходу.</p>
+        <div class="hero-cta">
+          <a href="#menu" class="btn">Заказать с собой</a>
+          <a href="#contacts" class="btn soft">Как найти</a>
+        </div>
+      </div>
+      <div class="hero-media" id="heroMedia">
+        <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?fm=jpg&q=75&w=1600&auto=format&fit=crop" alt="Круассаны посыпают сахарной пудрой" fetchpriority="high">
+      </div>
+    </div>
+
+    <div class="oven" id="oven">
+      <div class="oven-now"><b id="ovenTitle">Скоро из печи</b><span id="ovenText"></span></div>
+      <div class="batches" id="batches"></div>
+    </div>
+  </div>
+
+  <section id="menu">
+    <div class="wrap">
+      <h2>Меню</h2>
+      <p class="sub">Нажмите «+», и позиция попадёт в заказ. Оплата на кассе, когда заберёте.</p>
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div class="menu" id="menuList"></div>
+    </div>
+  </section>
+
+  <section id="order" class="order">
+    <div class="wrap">
+      <h2>Заказ с собой</h2>
+      <p class="sub">Начнём собирать заказ, как только вы его отправите. Выпечку подогреем, если попросите.</p>
+      <div class="order-grid" id="orderForm">
+        <div>
+          <span class="lbl">Ваш заказ</span>
+          <div id="lines"></div>
+        </div>
+        <div>
+          <span class="lbl">Когда заберёте</span>
+          <div class="chips" id="pickup"></div>
+          <div class="field" style="margin-top:26px"><label class="lbl" for="name">Имя</label><input id="name" type="text" autocomplete="given-name"></div>
+          <div class="field">
+            <label class="lbl" for="phone">Телефон</label>
+            <input id="phone" type="tel" placeholder="+7 (___) ___-__-__" autocomplete="tel" inputmode="tel">
+            <div class="err" id="phoneErr">Проверьте номер: нужно 11 цифр</div>
+          </div>
+          <button class="btn" id="submit" disabled>Отправить заказ</button>
+          <p class="fine">Оплата на кассе. Если опаздываете, ничего страшного: заказ подождёт 30 минут.</p>
+        </div>
+      </div>
+      <div class="success" id="success" role="status">
+        <span class="num" id="orderNum"></span>
+        <h3>Заказ принят</h3>
+        <p id="successText"></p>
+        <p class="fine">В демо заказ никуда не уходит. На рабочем сайте он сразу появляется на планшете у кассы.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="coffee">
+    <div class="wrap coffee">
+      <div class="coffee-photo"><img src="https://images.unsplash.com/photo-1515860734122-e0d771b36d3e?fm=jpg&q=75&w=1200&auto=format&fit=crop" alt="Бариста наливает молоко в чашку" loading="lazy"></div>
+      <div>
+        <h2>Кофе, ради которого заходят без выпечки</h2>
+        <div class="coffee-list">
+          <div><i class="ph ph-coffee-bean"></i><p><b>Свежая обжарка</b>Зерно приходит раз в неделю, старше месяца не бывает.</p></div>
+          <div><i class="ph ph-drop"></i><p><b>Альтернативное молоко без доплаты</b>Овсяное, миндальное или кокосовое.</p></div>
+          <div><i class="ph ph-cup"></i><p><b>Своя кружка: минус 20 ₽</b>Принесите термокружку, нальём в неё.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reviews" style="padding-top:0">
+    <div class="wrap review">
+      <div>
+        <blockquote>
+          <p>«Заказываю из автобуса, захожу, а капучино уже стоит с моим именем. Круассан тёплый, как будто только достали.»</p>
+          <footer>Алина, заходит по утрам</footer>
+        </blockquote>
+        <div class="rating"><i class="ph-bold ph-star"></i><b>4,9</b>в 2ГИС, 312 отзывов</div>
+      </div>
+      <div class="review-photo"><img src="https://images.unsplash.com/photo-1507915135761-41a0a222c709?fm=jpg&q=75&w=900&auto=format&fit=crop" alt="Латте-арт в белой чашке" loading="lazy"></div>
+    </div>
+  </section>
+
+  <section id="contacts" class="order">
+    <div class="wrap">
+      <h2>Как найти</h2>
+      <div class="contacts">
+        <div class="rows">
+          <div><i class="ph ph-map-pin"></i><span><small>Адрес</small>Томск, ул. Примерная, 1. Вход с улицы, жёлтая дверь.</span></div>
+          <div><i class="ph ph-clock"></i><span><small>Часы работы</small>Каждый день 7:30-21:00</span></div>
+          <div><i class="ph ph-phone"></i><span><small>Телефон</small><a href="tel:+70000000000" style="text-decoration:none">+7 (3822) 00-00-00</a></span></div>
+        </div>
+        <iframe class="map" title="Карта" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=84.93%2C56.46%2C85.00%2C56.50&amp;layer=mapnik"></iframe>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="foot"><div class="wrap">мякиш. · демо-сайт</div></div>
+
+<div class="cart-bar" id="cartBar"><a href="#order"><span id="cartBarN">Заказ</span><span id="cartBarSum">0 ₽</span></a></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const rub = n => n.toLocaleString('ru-RU') + ' ₽';
+const img = id => `https://images.unsplash.com/photo-${id}?fm=jpg&q=70&w=300&auto=format&fit=crop`;
+
+// расписание выпечки
+const BATCHES = [[7, 30, 'круассаны и пан-о-шоколя'], [11, 0, 'хлеб на закваске и багеты'], [16, 0, 'синнабоны и слойки'], [19, 0, 'вечерние круассаны']];
+function renderOven(){
+  const now = new Date(), m = now.getHours() * 60 + now.getMinutes();
+  const next = BATCHES.findIndex(([h, mm]) => h * 60 + mm > m);
+  $('batches').innerHTML = BATCHES.map(([h, mm, what], i) => {
+    const cls = next === -1 || i < next ? 'done' : i === next ? 'next' : '';
+    return `<div class="batch ${cls}"><time>${h}:${String(mm).padStart(2, '0')}</time>${what}</div>`;
+  }).join('');
+  if (next === -1) { $('ovenTitle').textContent = 'На сегодня всё испекли'; $('ovenText').textContent = 'Завтра первые круассаны в 7:30'; return; }
+  const [h, mm, what] = BATCHES[next], left = h * 60 + mm - m;
+  $('ovenTitle').textContent = left <= 60 ? `Через ${left} мин из печи` : `Следующая выпечка в ${h}:${String(mm).padStart(2, '0')}`;
+  $('ovenText').textContent = what[0].toUpperCase() + what.slice(1);
+}
+renderOven(); setInterval(renderOven, 60000);
+
+// меню
+const MENU = {
+  "Выпечка": [
+    ["Круассан", "сливочное масло 82%", 160, "1599940778173-e276d4acb2bb"],
+    ["Пан-о-шоколя", "бельгийский шоколад", 190, "1483695028939-5bb13f8648b0"],
+    ["Миндальный круассан", "с франжипаном", 220, "1597528662465-55ece5734101"],
+    ["Синнабон", "корица, сливочный крем", 210, null],
+    ["Слойка с вишней", "", 170, null],
+  ],
+  "Кофе": [
+    ["Капучино", "0,3 л", 190, "1507915135761-41a0a222c709"],
+    ["Латте", "0,4 л", 220, null],
+    ["Флэт уайт", "0,25 л", 210, null],
+    ["Раф ванильный", "0,3 л", 250, null],
+    ["Эспрессо", "30 мл", 120, null],
+    ["Какао", "0,3 л", 180, null],
+  ],
+  "Хлеб": [
+    ["Хлеб на закваске", "пшеничный, 600 г", 260, "1612366747681-e4ca6992b1e9"],
+    ["Багет", "", 140, null],
+    ["Чиабатта", "", 120, null],
+    ["Бородинский", "с кориандром", 180, null],
+  ],
+};
+const ICON = {"Выпечка": "ph-cookie", "Кофе": "ph-coffee", "Хлеб": "ph-bread"};
+const cart = {};
+let cat = "Выпечка";
+
+Object.keys(MENU).forEach(c => {
+  const b = document.createElement('button');
+  b.className = 'tab'; b.role = 'tab'; b.textContent = c;
+  b.onclick = () => { cat = c; renderMenu(); };
+  $('tabs').appendChild(b);
+});
+
+function control(name){
+  const q = cart[name] || 0;
+  return q
+    ? `<div class="qty"><button data-d="-1" data-n="${name}" aria-label="Убрать"><i class="ph-bold ph-minus"></i></button><span>${q}</span><button data-d="1" data-n="${name}" aria-label="Добавить"><i class="ph-bold ph-plus"></i></button></div>`
+    : `<button class="add" data-d="1" data-n="${name}" aria-label="Добавить ${name}"><i class="ph-bold ph-plus"></i></button>`;
+}
+function renderMenu(){
+  [...$('tabs').children].forEach(t => t.setAttribute('aria-selected', t.textContent === cat));
+  $('menuList').innerHTML = MENU[cat].map(([n, d, p, ph], i) => `
+    <div class="item" style="animation-delay:${i * 40}ms">
+      <div class="pic">${ph ? `<img src="${img(ph)}" alt="" loading="lazy">` : `<i class="ph ${ICON[cat]}"></i>`}</div>
+      <div class="t"><b>${n}</b>${d ? `<span>${d}</span>` : ''}<span class="p">${rub(p)}</span></div>
+      <div class="ctl">${control(n)}</div>
+    </div>`).join('');
+}
+function priceOf(name){ for (const c in MENU) for (const it of MENU[c]) if (it[0] === name) return it[2]; return 0; }
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-d]'); if (!b) return;
+  const n = b.dataset.n;
+  cart[n] = Math.max(0, (cart[n] || 0) + Number(b.dataset.d));
+  if (!cart[n]) delete cart[n];
+  const ctl = b.closest('.ctl'); if (ctl) ctl.innerHTML = control(n);
+  renderCart(Number(b.dataset.d) > 0);
+});
+
+function renderCart(bump){
+  const names = Object.keys(cart);
+  const count = names.reduce((s, n) => s + cart[n], 0);
+  const sum = names.reduce((s, n) => s + cart[n] * priceOf(n), 0);
+  $('cartN').textContent = count; $('cartN').classList.toggle('on', count > 0);
+  $('cartBarN').textContent = `Заказ · ${count} шт`; $('cartBarSum').textContent = rub(sum);
+  $('cartBar').classList.toggle('on', count > 0 && !orderVisible);
+  if (bump) { $('cartBar').classList.remove('bump'); void $('cartBar').offsetWidth; $('cartBar').classList.add('bump'); }
+  $('lines').innerHTML = count
+    ? `<div class="lines">${names.map(n => `<div class="line"><span>${n} × ${cart[n]}</span><span>${rub(cart[n] * priceOf(n))}</span></div>`).join('')}</div><div class="total"><span>Итого</span><span>${rub(sum)}</span></div>`
+    : `<div class="empty">Пока пусто. <a href="#menu">Выберите в меню</a></div>`;
+  check();
+}
+
+// время, когда заберут
+let pickup = null;
+function renderPickup(){
+  const now = new Date();
+  $('pickup').innerHTML = '';
+  [15, 30, 45, 60].forEach(min => {
+    const t = new Date(now.getTime() + min * 60000);
+    t.setMinutes(Math.ceil(t.getMinutes() / 5) * 5, 0, 0);
+    const label = `${t.getHours()}:${String(t.getMinutes()).padStart(2, '0')}`;
+    const b = document.createElement('button');
+    b.className = 'chip'; b.setAttribute('aria-pressed', pickup === label);
+    b.innerHTML = `${label}<small>через ${min === 60 ? 'час' : min + ' мин'}</small>`;
+    b.onclick = () => { pickup = label; [...$('pickup').children].forEach(c => c.setAttribute('aria-pressed', c === b)); check(); };
+    $('pickup').appendChild(b);
+  });
+}
+renderPickup();
+
+const digits = () => $('phone').value.replace(/\D/g, '');
+const phoneOk = () => digits().length === 11;
+$('phone').addEventListener('input', e => {
+  let d = digits();
+  if (d.startsWith('8')) d = '7' + d.slice(1);
+  if (d && !d.startsWith('7')) d = '7' + d;
+  d = d.slice(0, 11);
+  let out = d ? '+7' : '';
+  if (d.length > 1) out += ' (' + d.slice(1, 4);
+  if (d.length >= 4) out += ') ' + d.slice(4, 7);
+  if (d.length >= 7) out += '-' + d.slice(7, 9);
+  if (d.length >= 9) out += '-' + d.slice(9, 11);
+  e.target.value = out; $('phoneErr').style.display = 'none'; check();
+});
+$('phone').addEventListener('blur', () => { $('phoneErr').style.display = digits().length && !phoneOk() ? 'block' : 'none'; });
+
+function check(){ $('submit').disabled = !(Object.keys(cart).length && pickup && phoneOk()); }
+
+$('submit').onclick = () => {
+  const name = $('name').value.trim();
+  $('orderNum').textContent = '№' + (200 + Math.floor(Math.random() * 90));
+  $('successText').innerHTML = `${name ? name + ', заказ' : 'Заказ'} будет готов к <b>${pickup}</b>. Назовите номер на кассе.`;
+  $('orderForm').style.display = 'none';
+  $('success').classList.add('show');
+  for (const k in cart) delete cart[k];
+  renderCart(); renderMenu();
+};
+
+// плавающая корзина прячется, когда открыт блок заказа
+let orderVisible = false;
+new IntersectionObserver(([e]) => { orderVisible = e.isIntersecting; renderCart(); }, {threshold: .1}).observe($('order'));
+
+renderMenu(); renderCart();
+</script>
+</body>
+</html>
