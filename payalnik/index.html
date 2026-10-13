@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Паяльник: ремонт телефонов и ноутбуков</title>
+<meta name="description" content="Демо-сайт сервиса ремонта: цена до вскрытия, оригинал или копия на выбор, трекер ремонта.">
+<meta name="theme-color" content="#e6e5e0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<style>
+  /* Технический стиль: бумага, чёрные линии, жёлтая бирка. Без скруглений. Тема всегда светлая. */
+  :root{
+    color-scheme:light;
+    --bg:#e6e5e0;
+    --paper:#f1f0ec;
+    --ink:#0e0e0e;
+    --muted:#55554f;
+    --tag:#f5c400;
+    --ok:#1d7a3e;
+    --b:2px solid var(--ink);
+    --sans:"Inter Tight",system-ui,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+    --ease:cubic-bezier(.16,1,.3,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;border-radius:0}
+  img{display:block;max-width:100%}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 16px}
+  @media(min-width:768px){.wrap{padding:0 32px}}
+  .mono{font-family:var(--mono)}
+
+  .demo-bar{font:12px/1.4 var(--mono);text-align:center;padding:6px 16px;color:var(--muted);border-bottom:1px solid #cfcdc6}
+
+  /* бегущая строка */
+  .ticker{background:var(--ink);color:var(--tag);overflow:hidden;white-space:nowrap;font:500 13px/1 var(--mono);padding:10px 0;text-transform:uppercase;letter-spacing:.04em}
+  .ticker div{display:inline-block;animation:tick 32s linear infinite;padding-left:100%}
+  .ticker span{margin:0 28px}
+  @keyframes tick{to{transform:translateX(-100%)}}
+
+  header{border-bottom:var(--b);background:var(--bg);position:sticky;top:0;z-index:30}
+  .nav{display:flex;align-items:stretch;justify-content:space-between;height:60px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.02em;text-transform:uppercase;text-decoration:none;padding-right:20px}
+  .logo i{display:grid;place-items:center;width:30px;height:30px;background:var(--tag);border:var(--b);font-size:16px}
+  .nav-links{display:none}
+  .nav-links a{display:flex;align-items:center;padding:0 22px;border-left:var(--b);font:500 13px var(--mono);text-transform:uppercase;text-decoration:none}
+  .nav-links a:hover{background:var(--ink);color:var(--bg)}
+  @media(min-width:960px){.nav-links{display:flex}}
+  .call{display:flex;align-items:center;gap:8px;padding-left:18px;border-left:var(--b);font:500 14px var(--mono);text-decoration:none}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:58px;padding:0 26px;background:var(--tag);color:var(--ink);border:var(--b);font:700 14px var(--mono);text-transform:uppercase;letter-spacing:.03em;text-decoration:none;box-shadow:4px 4px 0 var(--ink);transition:transform .12s,box-shadow .12s}
+  .btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+  .btn:active{transform:translate(4px,4px);box-shadow:0 0 0 var(--ink)}
+  .btn.ink{background:var(--paper)}
+  .btn[disabled]{background:#d5d3cc;color:#8a8982;box-shadow:none;cursor:not-allowed;transform:none}
+
+  /* первый экран */
+  .hero{display:grid;border-bottom:var(--b)}
+  .hero-text{padding:36px 16px 40px}
+  h1{font-weight:800;font-size:clamp(38px,5.4vw,84px);line-height:.92;letter-spacing:-.05em;text-transform:uppercase}
+  h1 mark{background:var(--tag);color:var(--ink);padding:0 .08em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+  .lead{margin-top:22px;font-size:clamp(17px,1.6vw,19px);color:var(--muted);max-width:42ch}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+  @media(max-width:520px){.hero-cta .btn{flex:1 1 100%}}
+  .hero-photo{border-top:var(--b);min-height:300px;background:var(--paper)}
+  .hero-photo img{width:100%;height:100%;object-fit:cover;filter:grayscale(.35) contrast(1.05)}
+  @media(min-width:960px){
+    .hero{grid-template-columns:1.25fr 1fr;min-height:calc(100dvh - 140px)}
+    .hero-text{padding:64px 40px 56px 32px;display:flex;flex-direction:column;justify-content:flex-end}
+    .hero-photo{border-top:0;border-left:var(--b)}
+  }
+  @media(min-width:1280px){.hero-text{padding-left:calc((100vw - 1280px)/2 + 32px)}}
+
+  section{border-bottom:var(--b)}
+  .sec-head{padding:56px 0 32px}
+  @media(min-width:960px){.sec-head{padding:88px 0 40px}}
+  h2{font-weight:800;font-size:clamp(32px,5vw,64px);line-height:.95;letter-spacing:-.045em;text-transform:uppercase;max-width:14ch}
+  .sub{margin-top:14px;color:var(--muted);max-width:52ch}
+
+  /* калькулятор */
+  .calc{display:grid;border-top:var(--b)}
+  @media(min-width:960px){.calc{grid-template-columns:1.2fr .8fr}}
+  .calc-left{padding:28px 0 36px}
+  @media(min-width:960px){.calc-left{padding:36px 40px 48px 0}}
+  .lbl{display:block;font:500 12px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:12px}
+  .lbl.gap{margin-top:32px}
+  .grid-btns{display:grid;grid-template-columns:repeat(2,1fr);border-top:var(--b);border-left:var(--b)}
+  @media(min-width:600px){.grid-btns.four{grid-template-columns:repeat(4,1fr)}}
+  .gb{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:16px;min-height:76px;border-right:var(--b);border-bottom:var(--b);text-align:left;font-weight:600;font-size:16px;line-height:1.2;background:var(--paper);transition:background .15s}
+  .gb i{font-size:22px}
+  .gb small{font:400 12px var(--mono);color:var(--muted)}
+  .gb:hover{background:#fff}
+  .gb[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+  .gb[aria-pressed="true"] small{color:#b9b8b1}
+  .switch{display:grid;grid-template-columns:1fr 1fr;border:var(--b)}
+  .switch button{padding:14px 12px;font:500 14px var(--mono);text-transform:uppercase;background:var(--paper);line-height:1.3}
+  .switch button+button{border-left:var(--b)}
+  .switch button small{display:block;text-transform:none;font-size:12px;color:var(--muted)}
+  .switch button[aria-pressed="true"]{background:var(--tag)}
+
+  /* чек */
+  .receipt-wrap{padding:28px 0 40px}
+  @media(min-width:960px){.receipt-wrap{border-left:var(--b);padding:36px 0 48px 40px}}
+  .receipt{background:#fbfbf8;border:var(--b);padding:22px 20px 26px;font:14px/1.6 var(--mono);position:relative}
+  .receipt::after{content:"";position:absolute;left:-2px;right:-2px;bottom:-12px;height:12px;background:linear-gradient(-45deg,transparent 6px,#fbfbf8 0) 0 0/12px 12px repeat-x,linear-gradient(45deg,transparent 6px,#fbfbf8 0) 0 0/12px 12px repeat-x}
+  .receipt .hd{text-align:center;font-weight:700;letter-spacing:.1em;padding-bottom:12px;border-bottom:1px dashed var(--ink);margin-bottom:12px}
+  .r-line{display:flex;justify-content:space-between;gap:12px}
+  .r-line span:last-child{text-align:right;white-space:nowrap}
+  .r-sep{border-top:1px dashed var(--ink);margin:12px 0}
+  .r-total{display:flex;justify-content:space-between;align-items:baseline;font-weight:700}
+  .r-total b{font-size:34px;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+  .r-note{margin-top:12px;color:var(--muted);font-size:12px}
+  .receipt-wrap .btn{width:100%;margin-top:30px}
+  .empty-r{color:var(--muted);text-align:center;padding:28px 0}
+
+  /* не подменим */
+  .honest{display:grid;border-top:var(--b)}
+  @media(min-width:960px){.honest{grid-template-columns:1fr 1fr}}
+  .honest-photo{min-height:280px;border-bottom:var(--b)}
+  .honest-photo img{width:100%;height:100%;object-fit:cover}
+  @media(min-width:960px){.honest-photo{border-bottom:0;border-right:var(--b)}}
+  .rules{display:grid}
+  .rule{display:grid;grid-template-columns:56px 1fr;gap:0;border-bottom:var(--b)}
+  .rule:last-child{border-bottom:0}
+  .rule i{display:grid;place-items:center;border-right:var(--b);font-size:24px;background:var(--paper)}
+  .rule div{padding:22px 20px}
+  .rule b{display:block;font-size:19px;letter-spacing:-.01em;margin-bottom:4px}
+  .rule p{color:var(--muted);font-size:16px}
+
+  /* трекер */
+  .track{display:grid;border-top:var(--b)}
+  @media(min-width:960px){.track{grid-template-columns:.9fr 1.1fr}}
+  .track-form{padding:28px 0 36px}
+  @media(min-width:960px){.track-form{padding:36px 40px 48px 0;border-right:var(--b)}}
+  .inp{display:flex;border:var(--b);background:#fbfbf8}
+  .inp input{flex:1;min-width:0;height:58px;border:0;background:transparent;padding:0 16px;font:500 20px var(--mono);letter-spacing:.08em;outline:none;color:var(--ink)}
+  .inp input::placeholder{color:#a3a29b}
+  .inp button{padding:0 20px;background:var(--ink);color:var(--bg);font:700 13px var(--mono);text-transform:uppercase}
+  .hint{margin-top:10px;font:12px var(--mono);color:var(--muted)}
+  .track-out{padding:28px 0 40px}
+  @media(min-width:960px){.track-out{padding:36px 0 48px 40px}}
+  .stages{list-style:none;border:var(--b);background:#fbfbf8}
+  .stage{display:grid;grid-template-columns:44px 1fr auto;align-items:center;border-bottom:1px solid #cfcdc6;min-height:60px;opacity:.35}
+  .stage:last-child{border-bottom:0}
+  .stage i{display:grid;place-items:center;height:100%;font-size:18px}
+  .stage b{font-weight:600}
+  .stage small{display:block;font:12px var(--mono);color:var(--muted)}
+  .stage time{font:13px var(--mono);padding-right:14px;color:var(--muted)}
+  .stage.done{opacity:1}
+  .stage.done i{color:var(--ok)}
+  .stage.now{opacity:1;background:var(--tag)}
+  .stage.now time{color:var(--ink)}
+  .stage.show{animation:in .5s var(--ease) both}
+  @keyframes in{from{transform:translateX(-10px);opacity:0}}
+  .track-empty{font:14px var(--mono);color:var(--muted);border:2px dashed #b9b8b1;padding:28px;text-align:center}
+
+  /* заявка */
+  .book{display:grid;border-top:var(--b)}
+  @media(min-width:960px){.book{grid-template-columns:1fr 1fr}}
+  .book>div{padding:28px 0 36px;min-width:0}
+  @media(min-width:960px){.book>div:first-child{padding:36px 40px 48px 0;border-right:var(--b)}.book>div:last-child{padding:36px 0 48px 40px}}
+  .field{margin-bottom:18px}
+  .field input{width:100%;height:56px;border:var(--b);background:#fbfbf8;padding:0 16px;font:500 17px var(--sans);outline:none;color:var(--ink)}
+  .field input:focus{background:#fff;box-shadow:4px 4px 0 var(--tag)}
+  .err{display:none;font:12px var(--mono);color:#b3261e;margin-top:6px}
+  .slots{display:grid;grid-template-columns:repeat(3,1fr);border-top:var(--b);border-left:var(--b)}
+  .slots button{padding:12px 6px;border-right:var(--b);border-bottom:var(--b);font:500 14px var(--mono);background:var(--paper);line-height:1.3}
+  .slots button small{display:block;font-size:11px;color:var(--muted)}
+  .slots button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+  .slots button[aria-pressed="true"] small{color:#b9b8b1}
+  .book .btn{width:100%}
+  .fine{font:12px/1.5 var(--mono);color:var(--muted);margin-top:14px}
+  .done-box{display:none;border:var(--b);background:var(--tag);padding:28px}
+  .done-box.show{display:block;animation:in .5s var(--ease)}
+  .done-box .num{font:700 clamp(44px,8vw,72px)/1 var(--mono);letter-spacing:-.04em}
+  .done-box h3{font-size:24px;font-weight:800;text-transform:uppercase;letter-spacing:-.02em;margin:12px 0 6px}
+  .done-box p{font-size:16px}
+
+  /* контакты */
+  .contacts{display:grid;border-top:var(--b)}
+  @media(min-width:960px){.contacts{grid-template-columns:.8fr 1.2fr}}
+  .rows{padding:28px 0 32px;display:grid;gap:18px;align-content:start}
+  @media(min-width:960px){.rows{padding:36px 40px 48px 0;border-right:var(--b)}}
+  .rows small{display:block;font:12px var(--mono);text-transform:uppercase;color:var(--muted);letter-spacing:.06em}
+  .rows span{font-size:18px;font-weight:500}
+  .map{display:block;width:100%;height:340px;border:0;border-top:var(--b);filter:grayscale(1) contrast(1.1)}
+  @media(min-width:960px){.map{border-top:0}}
+
+  .foot{padding:22px 0 110px;font:12px var(--mono);color:var(--muted)}
+  @media(min-width:960px){.foot{padding-bottom:28px}}
+
+  .sticky{position:fixed;left:12px;right:12px;bottom:12px;z-index:30;padding-bottom:env(safe-area-inset-bottom);transition:transform .35s var(--ease)}
+  .sticky .btn{width:100%}
+  .sticky.hide{transform:translateY(140%)}
+  @media(min-width:960px){.sticky{display:none}}
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    html{scroll-behavior:auto}
+    .ticker div{padding-left:16px}
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-bar">Демо-сайт: сервис, цены и отзывы вымышленные. Фото: Unsplash.</div>
+<div class="ticker" aria-hidden="true"><div><span>Экран за 40 минут</span><span>Батарея за 20 минут</span><span>Цена до вскрытия</span><span>Оригинал или копия на выбор</span><span>Гарантия до 6 месяцев</span><span>Старую деталь отдаём вам</span><span>Экран за 40 минут</span><span>Батарея за 20 минут</span><span>Цена до вскрытия</span></div></div>
+
+<header>
+  <div class="wrap nav">
+    <a href="#top" class="logo"><i class="ph-bold ph-lightning"></i>Паяльник</a>
+    <nav class="nav-links">
+      <a href="#calc">Цена</a>
+      <a href="#honest">Детали</a>
+      <a href="#track">Статус</a>
+      <a href="#book">Заявка</a>
+    </nav>
+    <a href="tel:+70000000000" class="call"><i class="ph-bold ph-phone"></i><span>00-00-00</span></a>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="hero-text">
+      <h1>Ремонт телефонов и ноутбуков. <mark>Цена до вскрытия.</mark></h1>
+      <p class="lead">Называем сумму до того, как откроем корпус. Деталь выбираете сами: оригинал или копия, разница в чеке.</p>
+      <div class="hero-cta">
+        <a href="#calc" class="btn">Посчитать ремонт</a>
+        <a href="#track" class="btn ink">Где мой телефон</a>
+      </div>
+    </div>
+    <div class="hero-photo"><img src="https://images.unsplash.com/photo-1639776738932-956082f0b704?fm=jpg&q=75&w=1600&auto=format&fit=crop" alt="Мастер в перчатках снимает экран с айфона" fetchpriority="high"></div>
+  </div>
+
+  <section id="calc">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Что сломалось?</h2>
+        <p class="sub">Три нажатия, и вы знаете цену. Если при диагностике окажется дешевле, возьмём меньше.</p>
+      </div>
+      <div class="calc">
+        <div class="calc-left">
+          <span class="lbl">Устройство</span>
+          <div class="grid-btns four" id="devices"></div>
+          <span class="lbl gap">Поломка</span>
+          <div class="grid-btns" id="issues"></div>
+          <span class="lbl gap">Деталь</span>
+          <div class="switch" id="part">
+            <button data-p="orig" aria-pressed="true">Оригинал<small>как с завода</small></button>
+            <button data-p="copy" aria-pressed="false">Копия<small>дешевле, хуже цвета</small></button>
+          </div>
+        </div>
+        <div class="receipt-wrap">
+          <div class="receipt" id="receipt"></div>
+          <a href="#book" class="btn" id="calcBtn">Записаться на ремонт</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="honest">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Не подменим деталь</h2>
+        <p class="sub">Главный страх в ремонте техники: отдал с оригинальным экраном, забрал с дешёвым. Вот как мы это исключаем.</p>
+      </div>
+    </div>
+    <div class="wrap" style="padding-bottom:0">
+      <div class="honest">
+        <div class="honest-photo"><img src="https://images.unsplash.com/photo-1746005514011-ea00280f3b6e?fm=jpg&q=75&w=1400&auto=format&fit=crop" alt="Разобранный айфон на рабочем коврике" loading="lazy"></div>
+        <div class="rules">
+          <div class="rule"><i class="ph-bold ph-video-camera"></i><div><b>Вскрытие на видео</b><p>Камера над столом пишет весь ремонт. Запись пришлём по запросу.</p></div></div>
+          <div class="rule"><i class="ph-bold ph-hand-coins"></i><div><b>Старая деталь ваша</b><p>Снятый экран или батарею отдаём вместе с телефоном.</p></div></div>
+          <div class="rule"><i class="ph-bold ph-barcode"></i><div><b>Серийный номер в чеке</b><p>Номер новой детали пишем в гарантийный талон. Проверите в любом сервисе.</p></div></div>
+          <div class="rule"><i class="ph-bold ph-shield-check"></i><div><b>Гарантия до 6 месяцев</b><p>На оригинальные детали полгода, на копии 3 месяца.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="track">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Где мой телефон?</h2>
+        <p class="sub">Не надо звонить и спрашивать. Номер заказа есть в квитанции.</p>
+      </div>
+      <div class="track">
+        <div class="track-form">
+          <span class="lbl">Номер заказа</span>
+          <form class="inp" id="trackForm"><input id="trackNum" inputmode="numeric" maxlength="6" placeholder="4821" aria-label="Номер заказа"><button type="submit">Найти</button></form>
+          <p class="hint">В демо подойдёт любой номер из 4 цифр.</p>
+        </div>
+        <div class="track-out" id="trackOut"><div class="track-empty">Введите номер, и здесь появится статус ремонта</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="book">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Оставить заявку</h2>
+        <p class="sub">Перезвоним за 10 минут и подтвердим цену. Можно принести самим или отдать курьеру.</p>
+      </div>
+      <div class="book" id="bookWrap">
+        <div>
+          <span class="lbl">Как передадите</span>
+          <div class="switch" id="how" style="margin-bottom:28px">
+            <button data-h="self" aria-pressed="true">Принесу сам<small>ул. Примерная, 1</small></button>
+            <button data-h="courier" aria-pressed="false">Курьер<small>+300 ₽, по Томску</small></button>
+          </div>
+          <span class="lbl">Когда</span>
+          <div class="slots" id="slots"></div>
+        </div>
+        <div>
+          <div class="field"><label class="lbl" for="name">Имя</label><input id="name" type="text" autocomplete="given-name"></div>
+          <div class="field">
+            <label class="lbl" for="phone">Телефон</label>
+            <input id="phone" type="tel" placeholder="+7 (___) ___-__-__" autocomplete="tel" inputmode="tel">
+            <div class="err" id="phoneErr">Проверьте номер: нужно 11 цифр</div>
+          </div>
+          <div class="receipt" id="bookSummary" style="margin-bottom:30px"></div>
+          <button class="btn" id="submit" disabled>Отправить заявку</button>
+          <p class="fine">Без предоплаты. Диагностика бесплатно, даже если откажетесь от ремонта.</p>
+        </div>
+      </div>
+      <div class="done-box" id="doneBox" role="status" style="margin-bottom:48px">
+        <div class="num" id="doneNum"></div>
+        <h3>Заявка принята</h3>
+        <p id="doneText"></p>
+        <p class="fine" style="color:var(--ink)">В демо заявка никуда не уходит. На рабочем сайте она сразу приходит мастеру в телефон.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contacts">
+    <div class="wrap">
+      <div class="sec-head"><h2>Мастерская</h2></div>
+      <div class="contacts">
+        <div class="rows">
+          <div><small>Адрес</small><span>Томск, ул. Примерная, 1, цокольный этаж</span></div>
+          <div><small>Часы</small><span>Пн-сб 10:00-20:00, вс 11:00-18:00</span></div>
+          <div><small>Телефон</small><span><a href="tel:+70000000000" style="text-decoration:none">+7 (3822) 00-00-00</a></span></div>
+        </div>
+        <iframe class="map" title="Карта" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=84.93%2C56.46%2C85.00%2C56.50&amp;layer=mapnik"></iframe>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="foot"><div class="wrap">ПАЯЛЬНИК / демо-сайт</div></div>
+<div class="sticky hide" id="sticky"><a href="#calc" class="btn">Посчитать ремонт</a></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const rub = n => n.toLocaleString('ru-RU') + ' ₽';
+const press = (g, b) => [...g.children].forEach(c => c.setAttribute('aria-pressed', c === b));
+
+// цены: [поломка, оригинал, копия, время, иконка]
+const DATA = {
+  iphone: { name: "iPhone", icon: "ph-device-mobile", issues: [
+    ["Разбит экран", 12900, 5900, "40 минут"], ["Батарея держит мало", 4900, 2600, "20 минут"],
+    ["Не заряжается", 3200, 2100, "30 минут"], ["Утопил", 2500, 2500, "от 1 дня"], ["Камера", 6800, 3900, "40 минут"], ["Кнопки, звук", 2900, 1900, "30 минут"]]},
+  android: { name: "Android", icon: "ph-device-mobile-camera", issues: [
+    ["Разбит экран", 8900, 4200, "1 час"], ["Батарея держит мало", 3200, 1900, "30 минут"],
+    ["Не заряжается", 2400, 1600, "30 минут"], ["Утопил", 2500, 2500, "от 1 дня"], ["Камера", 4600, 2800, "1 час"], ["Кнопки, звук", 2200, 1500, "40 минут"]]},
+  laptop: { name: "Ноутбук", icon: "ph-laptop", issues: [
+    ["Тормозит, греется", 2500, 2500, "1 день"], ["Разбит экран", 11900, 7400, "1 день"],
+    ["Залил клавиатуру", 4800, 3200, "1-2 дня"], ["Не включается", 3500, 3500, "от 1 дня"], ["Замена на SSD", 1500, 1500, "1 час"], ["Сломан разъём", 2900, 2000, "1 день"]]},
+  pc: { name: "ПК", icon: "ph-desktop-tower", issues: [
+    ["Не включается", 1500, 1500, "1 день"], ["Шумит, греется", 1800, 1800, "2 часа"],
+    ["Апгрейд, сборка", 2500, 2500, "1 день"], ["Синий экран", 1500, 1500, "1 день"], ["Установка Windows", 1200, 1200, "2 часа"], ["Чистка от пыли", 1500, 1500, "2 часа"]]},
+};
+const NO_PART = ["Утопил", "Тормозит, греется", "Не включается", "Замена на SSD", "Шумит, греется", "Апгрейд, сборка", "Синий экран", "Установка Windows", "Чистка от пыли"];
+const st = { dev: null, issue: null, part: 'orig', how: 'self', slot: null };
+
+Object.entries(DATA).forEach(([k, d]) => {
+  const b = document.createElement('button');
+  b.className = 'gb'; b.setAttribute('aria-pressed', 'false');
+  b.innerHTML = `<i class="ph-bold ${d.icon}"></i>${d.name}`;
+  b.onclick = () => { st.dev = k; st.issue = null; press($('devices'), b); renderIssues(); renderReceipt(); };
+  $('devices').appendChild(b);
+});
+function renderIssues(){
+  const el = $('issues'); el.innerHTML = '';
+  if (!st.dev) { el.innerHTML = '<div class="gb" style="grid-column:1/-1;color:var(--muted);font-weight:400">Сначала выберите устройство</div>'; return; }
+  DATA[st.dev].issues.forEach((it, i) => {
+    const b = document.createElement('button');
+    b.className = 'gb'; b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = `${it[0]}<small>от ${rub(Math.min(it[1], it[2]))}</small>`;
+    b.onclick = () => { st.issue = i; press(el, b); renderReceipt(); };
+    el.appendChild(b);
+  });
+}
+$('part').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; st.part = b.dataset.p; press($('part'), b); renderReceipt(); });
+
+function current(){
+  if (!st.dev || st.issue === null) return null;
+  const it = DATA[st.dev].issues[st.issue];
+  const noPart = NO_PART.includes(it[0]);
+  const price = noPart ? it[1] : (st.part === 'orig' ? it[1] : it[2]);
+  return { dev: DATA[st.dev].name, what: it[0], price, time: it[3], noPart, other: noPart ? null : (st.part === 'orig' ? it[2] : it[1]) };
+}
+let shown = 0, raf;
+function renderReceipt(){
+  const c = current();
+  if (!c) { $('receipt').innerHTML = `<div class="hd">ПАЯЛЬНИК / РАСЧЁТ</div><div class="empty-r">Выберите устройство и поломку</div>`; renderSummary(); return; }
+  const g = c.noPart ? '1 месяц' : (st.part === 'orig' ? '6 месяцев' : '3 месяца');
+  $('receipt').innerHTML = `
+    <div class="hd">ПАЯЛЬНИК / РАСЧЁТ</div>
+    <div class="r-line"><span>Устройство</span><span>${c.dev}</span></div>
+    <div class="r-line"><span>Поломка</span><span>${c.what}</span></div>
+    <div class="r-line"><span>Деталь</span><span>${c.noPart ? 'не нужна' : (st.part === 'orig' ? 'оригинал' : 'копия')}</span></div>
+    <div class="r-line"><span>Срок</span><span>${c.time}</span></div>
+    <div class="r-line"><span>Гарантия</span><span>${g}</span></div>
+    <div class="r-line"><span>Диагностика</span><span>0 ₽</span></div>
+    <div class="r-sep"></div>
+    <div class="r-total"><span>ИТОГО</span><b id="tot">${rub(shown)}</b></div>
+    <div class="r-note">${c.noPart ? 'Точную цену назовём после диагностики, она бесплатная.' : `${st.part === 'orig' ? 'С копией' : 'С оригиналом'} было бы ${rub(c.other)}.`}</div>`;
+  const from = shown, to = c.price, t0 = performance.now();
+  cancelAnimationFrame(raf);
+  const tick = t => {
+    const k = Math.min(1, (t - t0) / 420), e = 1 - Math.pow(1 - k, 3);
+    shown = Math.round(from + (to - from) * e);
+    const el = $('tot'); if (el) el.textContent = rub(shown);
+    if (k < 1) raf = requestAnimationFrame(tick);
+  };
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { shown = to; $('tot').textContent = rub(to); } else raf = requestAnimationFrame(tick);
+  renderSummary();
+}
+
+// трекер ремонта
+const STAGES = [["ph-tray-arrow-down", "Принят", "квитанция выдана"], ["ph-magnifying-glass", "Диагностика", "проверяем всё, не только поломку"], ["ph-wrench", "Ремонт", "мастер работает"], ["ph-check-circle", "Проверка", "тестируем после ремонта"], ["ph-package", "Готов", "можно забирать"]];
+$('trackForm').onsubmit = e => {
+  e.preventDefault();
+  const n = $('trackNum').value.replace(/\D/g, '');
+  if (n.length < 4) { $('trackOut').innerHTML = '<div class="track-empty">Нужно 4 цифры, например 4821</div>'; return; }
+  const step = Number(n) % 5; // для демо: этап зависит от номера
+  const now = new Date();
+  const times = STAGES.map((_, i) => { const t = new Date(now.getTime() - (step - i) * 47 * 60000); return `${t.getHours()}:${String(t.getMinutes()).padStart(2, '0')}`; });
+  $('trackOut').innerHTML = `<span class="lbl">Заказ №${n} · iPhone 13, замена экрана</span><ol class="stages">${STAGES.map(([ic, t, s], i) =>
+    `<li class="stage ${i < step ? 'done' : i === step ? 'now' : ''} show" style="animation-delay:${i * 90}ms"><i class="ph-bold ${i < step ? 'ph-check' : ic}"></i><div><b>${t}</b><small>${s}</small></div><time>${i <= step ? times[i] : ''}</time></li>`).join('')}</ol>`;
+};
+
+// заявка
+$('how').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; st.how = b.dataset.h; press($('how'), b); renderSummary(); });
+(function renderSlots(){
+  const now = new Date(), out = [];
+  for (let d = 0; d < 2; d++) for (const h of [10, 12, 14, 16, 18, 19]) {
+    if (d === 0 && h <= now.getHours()) continue;
+    out.push([d, h]);
+  }
+  out.slice(0, 6).forEach(([d, h]) => {
+    const b = document.createElement('button');
+    b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = `${h}:00<small>${d ? 'завтра' : 'сегодня'}</small>`;
+    b.onclick = () => { st.slot = `${d ? 'завтра' : 'сегодня'} в ${h}:00`; press($('slots'), b); renderSummary(); };
+    $('slots').appendChild(b);
+  });
+})();
+
+const digits = () => $('phone').value.replace(/\D/g, '');
+const phoneOk = () => digits().length === 11;
+$('phone').addEventListener('input', e => {
+  let d = digits();
+  if (d.startsWith('8')) d = '7' + d.slice(1);
+  if (d && !d.startsWith('7')) d = '7' + d;
+  d = d.slice(0, 11);
+  let out = d ? '+7' : '';
+  if (d.length > 1) out += ' (' + d.slice(1, 4);
+  if (d.length >= 4) out += ') ' + d.slice(4, 7);
+  if (d.length >= 7) out += '-' + d.slice(7, 9);
+  if (d.length >= 9) out += '-' + d.slice(9, 11);
+  e.target.value = out; $('phoneErr').style.display = 'none'; renderSummary();
+});
+$('phone').addEventListener('blur', () => { $('phoneErr').style.display = digits().length && !phoneOk() ? 'block' : 'none'; });
+
+function renderSummary(){
+  const c = current();
+  const courier = st.how === 'courier' ? 300 : 0;
+  $('bookSummary').innerHTML = `
+    <div class="r-line"><span>Ремонт</span><span>${c ? `${c.dev}, ${c.what.toLowerCase()}` : 'уточним по телефону'}</span></div>
+    <div class="r-line"><span>Передача</span><span>${st.how === 'courier' ? 'курьер' : 'принесу сам'}</span></div>
+    <div class="r-line"><span>Когда</span><span>${st.slot || '-'}</span></div>
+    <div class="r-sep"></div>
+    <div class="r-total"><span>ИТОГО</span><span>${c ? rub(c.price + courier) : (courier ? rub(courier) + ' + ремонт' : 'после диагностики')}</span></div>`;
+  $('submit').disabled = !(st.slot && phoneOk());
+}
+$('submit').onclick = () => {
+  const name = $('name').value.trim();
+  $('doneNum').textContent = '№' + (4000 + Math.floor(Math.random() * 900));
+  $('doneText').textContent = `${name ? name + ', ждём' : 'Ждём'} ${st.how === 'courier' ? 'курьера к вам' : 'вас в мастерской'} ${st.slot}. Мастер перезвонит в течение 10 минут. По этому номеру можно следить за ремонтом выше.`;
+  $('bookWrap').style.display = 'none';
+  $('doneBox').classList.add('show');
+};
+
+renderIssues(); renderReceipt();
+
+// плавающая кнопка: не нужна на первом экране и у калькулятора
+const seen = new Map();
+const io = new IntersectionObserver(es => { es.forEach(e => seen.set(e.target, e.isIntersecting)); $('sticky').classList.toggle('hide', [...seen.values()].some(Boolean)); }, {threshold: .05});
+io.observe(document.querySelector('.hero')); io.observe($('calc')); io.observe($('book'));
+</script>
+</body>
+</html>
