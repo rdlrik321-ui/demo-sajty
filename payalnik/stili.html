@@ -141,6 +141,9 @@
   .rule b{display:block;font-size:19px;letter-spacing:-.01em;margin-bottom:4px}
   .rule p{color:var(--muted);font-size:16px}
 
+  /* колонки сетки могут сжиматься уже содержимого, иначе на телефоне вылезают за край */
+  .calc>div,.honest>div,.track>div,.contacts>div{min-width:0}
+  .lbl{overflow-wrap:anywhere}
   /* трекер */
   .track{display:grid;border-top:var(--b)}
   @media(min-width:960px){.track{grid-template-columns:.9fr 1.1fr}}
